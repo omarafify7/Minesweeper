@@ -1,7 +1,7 @@
 # Minesweeper C Code
 This is a simple implementation of the classic game Minesweeper in C. The game is played on a 10x10 grid and the player's goal is to uncover all cells that do not contain a mine.
 
-How to Play
+# How to Play
 The player is prompted to enter a command and a cell's row and column. The command can be either 'c' for check cell or 'f' for flag cell.
 
 'c' command: This command is used to uncover a cell. If the cell contains a mine, the game is over. If the cell does not contain a mine, it displays the number of adjacent cells that contain mines.
@@ -10,7 +10,7 @@ The player is prompted to enter a command and a cell's row and column. The comma
 
 The game continues until all cells that do not contain mines are uncovered or a cell containing a mine is uncovered.
 
-Code Structure
+# Code Structure
 The code is structured around several key functions:
 
 printGrid(): This function prints the current state of the game grid.
@@ -25,7 +25,7 @@ countAdjacent(char [10][10], int, int): This function counts the number of mines
 
 withinArray(int , int): This function checks that an index is within the array.
 
-Compilation
+# Compilation
 To compile the code, use the following command:
 
 gcc -o minesweeper minesweeper.c  
