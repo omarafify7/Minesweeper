@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>  
+
 
 //declaring functions
 void printGrid();//function that prints the grid
@@ -8,6 +10,9 @@ void flag (int , int );//function that flags a covered position
 int checkWin ();//checks to see if win conditions are met
 int countAdjacent(char [10][10], int, int);//functions that counts the number of mines adjacent to a cell
 int withinArray(int , int);//function that checks that an index is within the array
+void handleUserInput(char* command, int* userRow, int* userCol);
+void updateGameState(char command, int userRow, int userCol);
+void initializeGame();
 
 //declaring variables that will be used later in the program, some of these need to be global because they will be referenced in functions outside the main
 int row = 10, col = 10, lockedCells = 0, continuePlaying = 0;
@@ -17,62 +22,14 @@ char command;
 
 int main(void)
 {
-    srand(2);//seeding the rand function
+    initializeGame();
 
-    //making the covered array
-    int mineArray[10][2];//array to made to hold the location (index) of mines
-    int rand1;
-    int rand2;
-    for(int i = 0; i < 10; i++) {
-        rand1 = rand() % 10;
-        rand2 = rand() % 10;
-        if(coveredArray[rand1][rand2] != 'M') {//if the array already is storing a mine at this index,
-            coveredArray[rand1][rand2] = 'M';//setting the random index to be a mine
-            mineArray[i][0] = rand1;//storing the location of the mines placed in the covered array
-            mineArray[i][1] = rand2;
-        }else {
-            i--;//lower the counter by 1 so that another random position is generated
-        }
-    }
-
-    //making the cells have the number of neighboring mines
-    for(int i = 0; i < 10; i++){
-        for(int j = 0; j < 10; j++){
-            completeArray[i][j] = (char) ((int)'0' + countAdjacent(coveredArray, i, j));//the countAdjacent function returns an int type. so, it is added
-                                                                                        //to the ASCII value of '0' then converted back to a char
-        }
-    }
-
-    //filling the array the user will see with *
-    for(int i = 0; i < 10; i++) {//looping through the whole array
-        for (int j = 0; j < 10; j++) {
-            coveredArray[i][j] = '*';
-        }
-    }
-
-    //putting the values of bombs back in because they are overwritten by the countAdjacent function
-    for(int i = 0; i < 10; i++){
-        completeArray[mineArray[i][0]][mineArray[i][1]] = 'M';//utilizing the stored index value of the mines that was randomly generated
-    }
-
-    int userRow;
-    int userCol;
+    char command;
+    int userCol, userRow;
     while(!continuePlaying){//continuePlaying is originally 0 which equals false, so !false = true
         printGrid();//printing the grid
-        printf("Enter 'c' for check cell, 'f' for flag cell.\n");//prompting the user for input
-        printf("Enter command & cell row col: ");
-        scanf(" %c %d %d", &command, &userRow, &userCol);
-        printf("\n");//adding the required spacing
-        if(command == 'f'){
-            flag(userRow, userCol);
-        } else if(command == 'c'){
-            check(userRow, userCol);
-        }
-        if(checkWin()){//this is the condition, if met, prints the grid, win statement, and breaks out the while loop
-            printGrid();
-            printf("Congratulations! You win!\n");
-            break;
-        }
+        handleUserInput(&command, &userRow, &userCol);  
+        updateGameState(command, userRow, userCol);  
     }
 }
 
@@ -153,4 +110,64 @@ int checkWin (){
         return 1;          //because either the user has flagged all possible mines or flagged some, and unlocked the rest that don't contain mines
     } else
         return 0;//otherwise returns 0 which means the win condition has not been met
+}
+
+void handleUserInput(char* command, int* userRow, int* userCol) {  
+    printf("Enter 'c' for check cell, 'f' for flag cell.\n"); // prompting the user for input  
+    printf("Enter command & cell row col: ");  
+    scanf(" %c %d %d", command, userRow, userCol);  
+    printf("\n"); // adding the required spacing  
+}  
+
+void updateGameState(char command, int userRow, int userCol) {  
+    if(command == 'f'){  
+        flag(userRow, userCol);  
+    } else if(command == 'c'){  
+        check(userRow, userCol);  
+    }  
+    if(checkWin()) { // this is the condition, if met, prints the grid, win statement, and breaks out the while loop  
+        printGrid();  
+        printf("Congratulations! You win!\n");  
+        continuePlaying = 1;  
+    }  
+} 
+
+void initializeGame(){
+    srand(time(NULL));  //seeding the rand function
+
+    //making the covered array
+    int mineArray[10][2];//array to made to hold the location (index) of mines
+    int rand1;
+    int rand2;
+    for(int i = 0; i < 10; i++) {
+        rand1 = rand() % 10;
+        rand2 = rand() % 10;
+        if(coveredArray[rand1][rand2] != 'M') {//if the array already is storing a mine at this index,
+            coveredArray[rand1][rand2] = 'M';//setting the random index to be a mine
+            mineArray[i][0] = rand1;//storing the location of the mines placed in the covered array
+            mineArray[i][1] = rand2;
+        }else {
+            i--;//lower the counter by 1 so that another random position is generated
+        }
+    }
+
+    //making the cells have the number of neighboring mines
+    for(int i = 0; i < 10; i++){
+        for(int j = 0; j < 10; j++){
+            completeArray[i][j] = (char) ((int)'0' + countAdjacent(coveredArray, i, j));//the countAdjacent function returns an int type. so, it is added
+                                                                                        //to the ASCII value of '0' then converted back to a char
+        }
+    }
+
+    //filling the array the user will see with "*"
+    for(int i = 0; i < 10; i++) {//looping through the whole array
+        for (int j = 0; j < 10; j++) {
+            coveredArray[i][j] = '*';
+        }
+    }
+
+    //putting the values of bombs back in because they are overwritten by the countAdjacent function
+    for(int i = 0; i < 10; i++){
+        completeArray[mineArray[i][0]][mineArray[i][1]] = 'M';//utilizing the stored index value of the mines that was randomly generated
+    }
 }
